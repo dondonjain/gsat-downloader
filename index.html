@@ -44,21 +44,26 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="subject">考試科目</label>
-                    <select id="subject" name="subject" required>
-                        <!-- 動態產生選項 -->
-                    </select>
+                    <label>考試科目 (可複選)</label>
+                    <div class="checkbox-grid" id="subjectGrid">
+                        <!-- 動態產生 Checkboxes -->
+                    </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="start_year">起始年份</label>
-                        <input type="number" id="start_year" name="start_year" min="95" max="115" value="103" required>
+                <div class="form-group">
+                    <label>年份選擇模式</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="yearMode" value="single" checked> 單一年份
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="yearMode" value="range"> 年份範圍
+                        </label>
                     </div>
-                    <div class="form-group">
-                        <label for="end_year">結束年份</label>
-                        <input type="number" id="end_year" name="end_year" min="95" max="115" value="115" required>
-                    </div>
+                </div>
+
+                <div class="form-row" id="yearInputRow">
+                    <!-- 動態產生年份輸入框 -->
                 </div>
 
                 <button type="submit" id="submitBtn">
@@ -68,7 +73,7 @@
             </form>
 
             <div id="statusMessage" class="status-message hidden">
-                <p>正在爬取與打包中，這可能需要 1~2 分鐘，請耐心等候...</p>
+                <p>正在打包中，這可能需要一小段時間，請耐心等候...</p>
                 <div class="progress-bar-container">
                     <div class="progress-bar"></div>
                 </div>
@@ -80,13 +85,27 @@
         </main>
     </div>
 
+    <!-- 自訂 Modal 視窗 -->
+    <div id="groupingModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>選擇分類方式</h3>
+            <p>您選擇了多個科目，請問希望 ZIP 壓縮檔內的資料夾如何分類？</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-outline" data-mode="subject">依科目分類</button>
+                <button type="button" class="btn-outline" data-mode="year">依年份分類</button>
+                <button type="button" class="btn-cancel" data-mode="cancel">取消打包</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const schoolLevelToggle = document.getElementById('schoolLevelToggle');
         const highSchoolExamTypeGroup = document.getElementById('highSchoolExamTypeGroup');
         const highSchoolExamType = document.getElementById('highSchoolExamType');
-        const subjectSelect = document.getElementById('subject');
-        const startYearInput = document.getElementById('start_year');
-        const endYearInput = document.getElementById('end_year');
+        const subjectGrid = document.getElementById('subjectGrid');
+        const yearInputRow = document.getElementById('yearInputRow');
+        const yearModeRadios = document.getElementsByName('yearMode');
+        const groupingModal = document.getElementById('groupingModal');
 
         const subjectsData = {
             '會考': [
@@ -98,7 +117,7 @@
                 { value: '寫作測驗', label: '寫作測驗' }
             ],
             '學測': [
-                { value: '國文', label: '國文 (含國綜、國寫)' },
+                { value: '國文', label: '國文 (含國綜/國寫)' },
                 { value: '英文', label: '英文' },
                 { value: '數學A', label: '數學 A' },
                 { value: '數學B', label: '數學 B' },
@@ -121,41 +140,88 @@
 
         function updateUI() {
             let currentType = '';
+            let minYear = 95;
             if (!schoolLevelToggle.checked) {
-                // 國中
                 currentType = '會考';
                 highSchoolExamTypeGroup.style.display = 'none';
-                startYearInput.min = 103;
-                startYearInput.value = Math.max(103, startYearInput.value);
+                minYear = 103;
             } else {
-                // 高中
                 currentType = highSchoolExamType.value;
                 highSchoolExamTypeGroup.style.display = 'block';
-                startYearInput.min = 95;
+                minYear = 95;
             }
 
-            // 更新科目選項
+            // 重新渲染科目 Checkboxes
             const options = subjectsData[currentType];
-            subjectSelect.innerHTML = '';
+            subjectGrid.innerHTML = '';
             options.forEach(opt => {
-                const el = document.createElement('option');
-                el.value = opt.value;
-                el.textContent = opt.label;
-                subjectSelect.appendChild(el);
+                const label = document.createElement('label');
+                label.className = 'checkbox-label';
+                label.innerHTML = `<input type="checkbox" name="subject" value="${opt.value}"> <span>${opt.label}</span>`;
+                subjectGrid.appendChild(label);
             });
+            // 預設選中第一個
+            if(subjectGrid.querySelector('input')) {
+                subjectGrid.querySelector('input').checked = true;
+            }
+
+            renderYearInputs(minYear);
+        }
+
+        function renderYearInputs(minYear) {
+            const mode = document.querySelector('input[name="yearMode"]:checked').value;
+            yearInputRow.innerHTML = '';
+            if (mode === 'single') {
+                yearInputRow.innerHTML = `
+                    <div class="form-group">
+                        <label for="single_year">年份</label>
+                        <input type="number" id="single_year" min="${minYear}" max="115" value="${Math.max(minYear, 115)}" required>
+                    </div>
+                `;
+            } else {
+                yearInputRow.innerHTML = `
+                    <div class="form-group">
+                        <label for="start_year">起始年份</label>
+                        <input type="number" id="start_year" min="${minYear}" max="115" value="${Math.max(minYear, 110)}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_year">結束年份</label>
+                        <input type="number" id="end_year" min="${minYear}" max="115" value="115" required>
+                    </div>
+                `;
+            }
         }
 
         schoolLevelToggle.addEventListener('change', updateUI);
         highSchoolExamType.addEventListener('change', updateUI);
+        
+        yearModeRadios.forEach(r => r.addEventListener('change', () => {
+            const minYear = !schoolLevelToggle.checked ? 103 : 95;
+            renderYearInputs(minYear);
+        }));
+
         // 初始化 UI
         updateUI();
 
-        document.getElementById('downloadForm').addEventListener('submit', async function(e) {
+        document.getElementById('downloadForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            let subject = document.getElementById('subject').value;
-            const startYear = parseInt(document.getElementById('start_year').value);
-            const endYear = parseInt(document.getElementById('end_year').value);
+            const selectedCheckboxes = document.querySelectorAll('input[name="subject"]:checked');
+            if (selectedCheckboxes.length === 0) {
+                showError("請至少選擇一個科目！");
+                return;
+            }
+
+            const subjects = Array.from(selectedCheckboxes).map(cb => cb.value);
+            const mode = document.querySelector('input[name="yearMode"]:checked').value;
+            let startYear, endYear;
+
+            if (mode === 'single') {
+                startYear = endYear = parseInt(document.getElementById('single_year').value);
+            } else {
+                startYear = parseInt(document.getElementById('start_year').value);
+                endYear = parseInt(document.getElementById('end_year').value);
+            }
             
             if (startYear > endYear) {
                 showError("起始年份不可大於結束年份！");
@@ -165,7 +231,29 @@
             const isHighSchool = schoolLevelToggle.checked;
             const examCategory = isHighSchool ? highSchoolExamType.value : '會考';
 
-            // UI State change
+            if (subjects.length > 1) {
+                // 顯示分類選項 Modal
+                groupingModal.classList.remove('hidden');
+                
+                // 設定一次性事件監聽器
+                const handleModalClick = (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        const groupingMode = e.target.getAttribute('data-mode');
+                        groupingModal.classList.add('hidden');
+                        groupingModal.removeEventListener('click', handleModalClick);
+                        
+                        if (groupingMode !== 'cancel') {
+                            downloadExams(subjects, startYear, endYear, examCategory, groupingMode);
+                        }
+                    }
+                };
+                groupingModal.addEventListener('click', handleModalClick);
+            } else {
+                downloadExams(subjects, startYear, endYear, examCategory, 'none');
+            }
+        });
+
+        async function downloadExams(subjects, startYear, endYear, examCategory, groupingMode) {
             const btn = document.getElementById('submitBtn');
             const spinner = document.getElementById('spinner');
             const btnText = document.querySelector('.btn-text');
@@ -174,7 +262,7 @@
 
             btn.disabled = true;
             spinner.style.display = 'block';
-            btnText.textContent = '從資料庫撈取並打包中...';
+            btnText.textContent = '打包中...';
             statusMsg.classList.remove('hidden');
             errorMsg.classList.add('hidden');
 
@@ -189,41 +277,56 @@
                     possibleTypes = ["試題", "答案", "選擇題答案", "答題卷", "非選擇題評分原則"];
                 }
 
-                for (let year = startYear; year <= endYear; year++) {
-                    for (let type of possibleTypes) {
-                        let targetSubject = subject;
-                        let filename;
-                        
-                        // 處理舊制數學 (111年以前學測沒有分AB)
-                        if (examCategory === '學測' && (subject === "數學A" || subject === "數學B") && year < 111) {
-                            targetSubject = "數學";
-                        }
-                        
-                        // 會考的答案只有一份「全部-答案.pdf」
-                        if (examCategory === '會考' && type === '答案') {
-                            filename = `${year}-${examCategory}全部-${type}.pdf`;
-                        } else {
-                            const extension = (type === '聽力音檔') ? '.url' : '.pdf';
-                            filename = `${year}-${examCategory}${targetSubject}-${type}${extension}`;
-                        }
-                        
-                        const url = `pdfs/${filename}`;
-                        
-                        try {
-                            const response = await fetch(url);
-                            if (response.ok) {
-                                const blob = await response.blob();
-                                zip.file(filename, blob);
-                                foundAny = true;
+                for (let subject of subjects) {
+                    for (let year = startYear; year <= endYear; year++) {
+                        for (let type of possibleTypes) {
+                            let targetSubject = subject;
+                            let filename;
+                            
+                            // 處理舊制數學
+                            if (examCategory === '學測' && (subject === "數學A" || subject === "數學B") && year < 111) {
+                                targetSubject = "數學";
                             }
-                        } catch (e) {
-                            // Fetch 失敗(404)直接忽略，繼續找下一個檔案
+                            
+                            if (examCategory === '會考' && type === '答案') {
+                                // 避免同一年份多次抓取會考答案
+                                filename = `${year}-${examCategory}全部-${type}.pdf`;
+                                // If zip already contains this file, skip to save bandwidth
+                                if (zip.file(filename) || (groupingMode === 'subject' && zip.folder(subject).file(filename)) || (groupingMode === 'year' && zip.folder(`${year}年`).file(filename))) {
+                                    continue;
+                                }
+                            } else {
+                                const extension = (type === '聽力音檔') ? '.url' : '.pdf';
+                                filename = `${year}-${examCategory}${targetSubject}-${type}${extension}`;
+                            }
+                            
+                            const url = `pdfs/${filename}`;
+                            
+                            try {
+                                const response = await fetch(url);
+                                if (response.ok) {
+                                    const blob = await response.blob();
+                                    
+                                    // 決定資料夾分類結構
+                                    let targetFolder = zip;
+                                    if (groupingMode === 'subject') {
+                                        targetFolder = zip.folder(subject);
+                                    } else if (groupingMode === 'year') {
+                                        targetFolder = zip.folder(`${year}年`);
+                                    }
+                                    
+                                    targetFolder.file(filename, blob);
+                                    foundAny = true;
+                                }
+                            } catch (e) {
+                                // Fetch 失敗忽略
+                            }
                         }
                     }
                 }
 
                 if (!foundAny) {
-                    throw new Error(`在這個年份區間找不到 ${examCategory} [${subject}] 的任何試題檔案。`);
+                    throw new Error(`在這個年份區間找不到您所選的任何試題檔案。`);
                 }
 
                 // 產生 ZIP 檔
@@ -232,7 +335,9 @@
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = downloadUrl;
-                a.download = `${examCategory}_${subject}_${startYear}-${endYear}.zip`;
+                const subjectsTitle = subjects.length > 1 ? '多科' : subjects[0];
+                const yearTitle = startYear === endYear ? startYear : `${startYear}-${endYear}`;
+                a.download = `${examCategory}_${subjectsTitle}_${yearTitle}.zip`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(downloadUrl);
@@ -246,7 +351,7 @@
                 btnText.textContent = '開始打包下載';
                 statusMsg.classList.add('hidden');
             }
-        });
+        }
 
         function showError(msg) {
             const errorMsg = document.getElementById('errorMessage');
