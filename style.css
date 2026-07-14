@@ -1,13 +1,21 @@
 :root {
-    --primary: #4F46E5;
-    --primary-hover: #4338CA;
-    --bg-color: #F3F4F6;
-    --card-bg: #FFFFFF;
-    --text-main: #111827;
-    --text-muted: #6B7280;
-    --border-color: #E5E7EB;
-    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --border-radius: 16px;
+    --bg-color: #f0fdf4;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --text-primary: #064e3b;
+    --text-secondary: #047857;
+    --sys-green: #10b981;
+    --sys-green-hover: #059669;
+    --divider: rgba(16, 185, 129, 0.2);
+    --shadow-soft: 0 10px 40px rgba(16, 185, 129, 0.15);
+    --focus-ring: 0 0 12px rgba(16, 185, 129, 0.4);
+    
+    /* Legacy variable mappings for existing classes */
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --text-main: #064e3b;
+    --text-muted: #047857;
+    --border-color: rgba(16, 185, 129, 0.3);
+    --border-radius: 12px;
     --error: #DC2626;
     --error-bg: #FEF2F2;
 }
@@ -19,14 +27,20 @@
 }
 
 body {
-    font-family: 'Inter', 'Noto Sans TC', sans-serif;
-    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+    font-family: "Consolas", "Courier New", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    background-color: var(--bg-color);
+    background-image: 
+        linear-gradient(rgba(16, 185, 129, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 185, 129, 0.08) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: var(--text-main);
+    color: var(--text-primary);
     padding: 20px;
+    -webkit-font-smoothing: antialiased;
 }
 
 .container {
@@ -34,8 +48,11 @@ body {
     width: 100%;
     max-width: 480px;
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-soft);
     padding: 40px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     transition: transform 0.3s ease;
 }
 
@@ -49,7 +66,7 @@ header {
 }
 
 .logo-box {
-    background: #EEF2FF;
+    background: rgba(16, 185, 129, 0.1);
     color: var(--primary);
     width: 56px;
     height: 56px;
@@ -58,18 +75,23 @@ header {
     justify-content: center;
     align-items: center;
     margin: 0 auto 16px;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
 h1 {
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 8px;
-    color: var(--text-main);
+    color: var(--text-primary);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    letter-spacing: 1px;
 }
 
 header p {
     font-size: 14px;
-    color: var(--text-muted);
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 .form-group {
@@ -87,29 +109,31 @@ header p {
 
 label {
     display: block;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #374151;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
 }
 
 select, input[type="number"] {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 10px;
     font-size: 15px;
-    color: var(--text-main);
-    background-color: #F9FAFB;
+    color: var(--text-primary);
+    background-color: rgba(240, 253, 244, 0.85);
     font-family: inherit;
+    font-weight: 600;
     transition: all 0.2s ease;
 }
 
 select:focus, input[type="number"]:focus {
     outline: none;
     border-color: var(--primary);
-    background-color: #FFFFFF;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    background-color: rgba(16, 185, 129, 0.05);
+    box-shadow: var(--focus-ring);
 }
 
 button {
@@ -120,24 +144,30 @@ button {
     border-radius: 12px;
     padding: 14px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     font-family: inherit;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 button:hover:not(:disabled) {
     background-color: var(--primary-hover);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 .spinner {
@@ -161,10 +191,12 @@ button:disabled {
 .status-message {
     margin-top: 24px;
     padding: 16px;
-    background-color: #EFF6FF;
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 12px;
-    color: #1E40AF;
+    color: var(--text-primary);
     font-size: 14px;
+    font-weight: 600;
     text-align: center;
     animation: fadeIn 0.3s ease;
 }
@@ -172,7 +204,7 @@ button:disabled {
 .progress-bar-container {
     width: 100%;
     height: 4px;
-    background-color: #DBEAFE;
+    background-color: rgba(16, 185, 129, 0.2);
     border-radius: 2px;
     margin-top: 12px;
     overflow: hidden;
@@ -181,16 +213,17 @@ button:disabled {
 .progress-bar {
     width: 50%;
     height: 100%;
-    background-color: #3B82F6;
+    background-color: var(--primary);
     border-radius: 2px;
     animation: indeterminate 1.5s infinite linear;
     transform-origin: 0% 50%;
+    box-shadow: 0 0 10px var(--primary);
 }
 
 @keyframes indeterminate {
-    0% { transform: translateX(0) scaleX(0); }
-    40% { transform: translateX(0) scaleX(0.4); }
-    100% { transform: translateX(100%) scaleX(0.5); }
+    0% { transform: translateX(-100%) scaleX(0.2); }
+    50% { transform: translateX(0) scaleX(0.5); }
+    100% { transform: translateX(200%) scaleX(0.2); }
 }
 
 @keyframes fadeIn {
@@ -224,7 +257,8 @@ button:disabled {
     display: inline-block;
     width: 240px;
     height: 44px;
-    background-color: #E5E7EB;
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 22px;
     cursor: pointer;
     overflow: hidden;
@@ -240,19 +274,19 @@ button:disabled {
 
 .slider {
     position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 112px;
+    top: 3px;
+    left: 3px;
+    width: 114px;
     height: 36px;
-    background-color: white;
+    background-color: var(--primary);
     border-radius: 18px;
     transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
     z-index: 1;
 }
 
 input:checked + .slider {
-    transform: translateX(120px);
+    transform: translateX(118px);
 }
 
 .toggle-labels {
@@ -270,7 +304,7 @@ input:checked + .slider {
 
 .toggle-labels span {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     width: 50%;
     text-align: center;
     color: var(--text-muted);
@@ -278,11 +312,13 @@ input:checked + .slider {
 }
 
 input:not(:checked) ~ .toggle-labels .label-left {
-    color: var(--primary);
+    color: #FFFFFF;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 input:checked ~ .toggle-labels .label-right {
-    color: var(--primary);
+    color: #FFFFFF;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 /* Checkbox Grid 樣式 */
@@ -296,18 +332,20 @@ input:checked ~ .toggle-labels .label-right {
     display: flex;
     align-items: center;
     padding: 10px 12px;
-    border: 1px solid var(--border-color);
+    border: 1px dashed rgba(16, 185, 129, 0.4);
     border-radius: 8px;
     cursor: pointer;
-    background-color: #F9FAFB;
+    background-color: transparent;
     transition: all 0.2s ease;
     font-size: 14px;
+    font-weight: 600;
     color: var(--text-main);
 }
 
 .checkbox-label:hover {
-    border-color: var(--primary);
-    background-color: #EEF2FF;
+    border-style: solid;
+    background-color: rgba(16, 185, 129, 0.05);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -316,6 +354,14 @@ input:checked ~ .toggle-labels .label-right {
     height: 16px;
     accent-color: var(--primary);
     cursor: pointer;
+}
+
+/* 模擬選中時發光框線 */
+.checkbox-label:has(input:checked) {
+    border-style: solid;
+    background-color: rgba(16, 185, 129, 0.1);
+    box-shadow: var(--focus-ring);
+    color: var(--primary);
 }
 
 .radio-group {
@@ -328,7 +374,8 @@ input:checked ~ .toggle-labels .label-right {
     align-items: center;
     font-size: 14px;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
+    color: var(--text-main);
 }
 
 .radio-label input {
@@ -343,12 +390,13 @@ input:checked ~ .toggle-labels .label-right {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.4);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 100;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     animation: fadeIn 0.2s ease;
 }
 
@@ -356,23 +404,28 @@ input:checked ~ .toggle-labels .label-right {
     background-color: var(--card-bg);
     padding: 32px;
     border-radius: var(--border-radius);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     width: 90%;
     max-width: 400px;
     text-align: center;
-    animation: slideUp 0.3s ease;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .modal-content h3 {
     margin-bottom: 12px;
-    color: var(--text-main);
+    color: var(--text-primary);
+    font-size: 20px;
 }
 
 .modal-content p {
     font-size: 14px;
     color: var(--text-muted);
     margin-bottom: 24px;
-    line-height: 1.5;
+    line-height: 1.6;
+    font-weight: 500;
 }
 
 .modal-actions {
@@ -389,14 +442,16 @@ input:checked ~ .toggle-labels .label-right {
     border-radius: 12px;
     padding: 12px;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .btn-outline:hover {
-    background-color: var(--primary);
-    color: white;
+    background-color: rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
 }
 
 .btn-cancel {
@@ -408,14 +463,15 @@ input:checked ~ .toggle-labels .label-right {
     font-size: 14px;
     cursor: pointer;
     transition: color 0.2s ease;
+    font-weight: 600;
 }
 
 .btn-cancel:hover {
-    color: var(--text-main);
-    text-decoration: underline;
+    color: var(--error);
+    text-decoration: none;
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
