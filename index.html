@@ -371,6 +371,21 @@
             errorMsg.classList.remove('hidden');
             errorText.textContent = msg;
         }
+
+        function copyPrompt(type) {
+            let promptText = "";
+            if (type === 'web') {
+                promptText = `我需要你幫我尋找台灣歷屆大考（學測、分科、會考）的試題。\n請「不要」使用上網搜尋功能。請直接依照以下固定格式，組合出下載連結清單給我：\nhttps://dondonjain.github.io/gsat-downloader/pdfs/[年份]-[考試類別][科目]-[文件類型].pdf\n\n例如：113-學測國文-試卷.pdf 或 112-會考全部-答案.pdf\n現在請幫我列出我指定年份與科目的所有試卷與解答連結。`;
+            } else if (type === 'agent') {
+                promptText = `這是一個台灣歷屆大考題庫的靜態 API。\n請使用你的讀取網頁工具 (curl, read_url 等)，讀取以下兩個端點來獲取資料結構與清單：\n1. OpenAPI 規格：https://dondonjain.github.io/gsat-downloader/openapi.yaml\n2. 檔案清單：https://dondonjain.github.io/gsat-downloader/api/files.json\n\n請閱讀上述資源後，直接從中篩選出我需要的年份與科目，並直接幫我下載或提供連結。`;
+            }
+            
+            navigator.clipboard.writeText(promptText).then(() => {
+                alert("✅ 提示詞已複製！請直接貼上給您的 AI。");
+            }).catch(err => {
+                alert("❌ 複製失敗，請手動選取複製。");
+            });
+        }
     </script>
 </body>
 </html>
