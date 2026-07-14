@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學測歷屆試題下載器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 JSZip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+            </div>
+            <h1>學測歷屆試題下載器</h1>
+            <p>快速打包大考中心歷屆試題與解答為 ZIP 壓縮檔</p>
+        </header>
+
+        <main>
+            <form id="downloadForm">
+                <div class="form-group">
+                    <label for="subject">考試科目</label>
+                    <select id="subject" name="subject" required>
+                        <option value="" disabled selected>請選擇科目</option>
+                        <option value="國文">國文 (含國綜、國寫)</option>
+                        <option value="英文">英文</option>
+                        <option value="數學A">數學 A</option>
+                        <option value="數學B">數學 B</option>
+                        <option value="社會">社會</option>
+                        <option value="自然">自然</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start_year">起始年份</label>
+                        <input type="number" id="start_year" name="start_year" min="80" max="115" value="105" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_year">結束年份</label>
+                        <input type="number" id="end_year" name="end_year" min="80" max="115" value="115" required>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    <span class="btn-text">開始打包下載</span>
+                    <div class="spinner" id="spinner"></div>
+                </button>
+            </form>
+
+            <div id="statusMessage" class="status-message hidden">
+                <p>正在爬取與打包中，這可能需要 1~2 分鐘，請耐心等候...</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+            
+            <div id="errorMessage" class="error-message hidden">
+                <p id="errorText"></p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const possibleTypes = ["試題", "答案", "選擇題答案", "答題卷", "非選擇題評分原則"];
+
+        document.getElementById('downloadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            let subject = document.getElementById('subject').value;
+            const startYear = parseInt(document.getElementById('start_year').value);
+            const endYear = parseInt(document.getElementById('end_year').value);
+            
+            if (startYear > endYear) {
+                showError("起始年份不可大於結束年份！");
+                return;
+            }
+
+            // UI State change
+            const btn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.querySelector('.btn-text');
+            const statusMsg = document.getElementById('statusMessage');
+            const errorMsg = document.getElementById('errorMessage');
+
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.textContent = '從本機撈取並打包中...';
+            statusMsg.classList.remove('hidden');
+            errorMsg.classList.add('hidden');
+
+            try {
+                const zip = new JSZip();
+                let foundAny = false;
+
+                for (let year = startYear; year <= endYear; year++) {
+                    for (let type of possibleTypes) {
+                        let targetSubject = subject;
+                        // 處理舊制數學 (111年以前沒有分AB)
+                        if ((subject === "數學A" || subject === "數學B") && year < 111) {
+                            targetSubject = "數學";
+                        }
+                        // 處理國文 (前端選項為國文，抓取的就是國文)
+                        
+                        const filename = `${year}-學測${targetSubject}-${type}.pdf`;
+                        // 嘗試 Fetch 檔案
+                        const url = `pdfs/${filename}`;
+                        
+                        try {
+                            const response = await fetch(url);
+                            if (response.ok) {
+                                const blob = await response.blob();
+                                zip.file(filename, blob);
+                                foundAny = true;
+                            }
+                        } catch (e) {
+                            // Fetch 失敗(404)直接忽略，繼續找下一個檔案
+                        }
+                    }
+                }
+
+                if (!foundAny) {
+                    throw new Error('在這個年份區間找不到該科目的任何試題檔案。');
+                }
+
+                // 產生 ZIP 檔
+                const zipBlob = await zip.generateAsync({type:"blob"});
+                const downloadUrl = window.URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = downloadUrl;
+                a.download = `GSAT_${subject}_${startYear}-${endYear}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(downloadUrl);
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                // Restore UI State
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = '開始打包下載';
+                statusMsg.classList.add('hidden');
+            }
+        });
+
+        function showError(msg) {
+            const errorMsg = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorMsg.classList.remove('hidden');
+            errorText.textContent = msg;
+        }
+    </script>
+</body>
+</html>
