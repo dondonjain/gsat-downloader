@@ -1,0 +1,78 @@
+openapi: 3.0.3
+info:
+  title: 全方位歷屆試題下載 API
+  description: 提供台灣大考（學測、分科測驗、國中會考）歷屆試題與解答之 PDF 檔案。本 API 為靜態文件，可以直接透過 GET 請求獲取。
+  version: 1.0.0
+servers:
+  - url: https://dondonjain.github.io/gsat-downloader
+paths:
+  /api/files.json:
+    get:
+      summary: 取得所有可下載試題之元資料清單
+      description: 回傳所有目前系統收錄之試題與解答檔案清單，包含年份、考試類別、科目與下載網址。
+      operationId: getFilesMetadata
+      responses:
+        '200':
+          description: 成功回傳檔案清單
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesMetadataResponse'
+  /pdfs/{filename}:
+    get:
+      summary: 直接下載考卷 PDF 或 URL 捷徑
+      description: 若已知檔案名稱，可直接透過此 Endpoint 下載原始檔案。
+      operationId: downloadPdf
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          description: 檔案名稱，例如 `113-學測國文-試卷.pdf` (需經過 URL Encode)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功下載檔案
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+components:
+  schemas:
+    FilesMetadataResponse:
+      type: object
+      properties:
+        description:
+          type: string
+        total_files:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamFile'
+    ExamFile:
+      type: object
+      properties:
+        year:
+          type: integer
+          description: 考試年份（民國）
+        examCategory:
+          type: string
+          description: 考試類別，如 "學測", "分科測驗", "會考"
+        subject:
+          type: string
+          description: 考試科目，如 "國文", "數學A", "自然"
+        type:
+          type: string
+          description: 文件類型，如 "試卷", "答案", "非選擇題評分原則"
+        filename:
+          type: string
+          description: 檔案名稱
+        url:
+          type: string
+          description: 可以直接存取的下載網址
+        size_bytes:
+          type: integer
+          description: 檔案大小 (Bytes)
