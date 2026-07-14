@@ -83,10 +83,16 @@
                 <p id="errorText"></p>
             </div>
             
-            <div class="api-docs-link" style="margin-top: 24px; text-align: center; font-size: 13px;">
-                <a href="openapi.yaml" target="_blank" style="color: var(--sys-green); text-decoration: none; font-weight: 600; border-bottom: 1px dashed var(--sys-green); padding-bottom: 2px;">🤖 供 AI Agent 存取的 OpenAPI 規格書</a>
-                <span style="color: var(--text-muted); margin: 0 8px;">|</span>
-                <a href="api/files.json" target="_blank" style="color: var(--sys-green); text-decoration: none; font-weight: 600; border-bottom: 1px dashed var(--sys-green); padding-bottom: 2px;">📁 檔案資料 API (files.json)</a>
+            <div class="ai-prompts-section" style="margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--divider);">
+                <p style="text-align: center; font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 16px; letter-spacing: 1px;">🤖 讓 AI 幫你找考卷</p>
+                <div style="display: flex; gap: 12px; flex-direction: column;">
+                    <button type="button" class="btn-outline" onclick="copyPrompt('web')" style="padding: 10px; font-size: 14px; background-color: rgba(16, 185, 129, 0.05);">
+                        📋 複製網頁版 AI 提示詞 (ChatGPT/Gemini)
+                    </button>
+                    <button type="button" class="btn-outline" onclick="copyPrompt('agent')" style="padding: 10px; font-size: 14px; background-color: rgba(16, 185, 129, 0.05);">
+                        🛠️ 複製 Agent AI 提示詞 (Cursor/Cline)
+                    </button>
+                </div>
             </div>
         </main>
     </div>
