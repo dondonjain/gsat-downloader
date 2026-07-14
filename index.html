@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>學測歷屆試題下載器</title>
+    <title>全方位歷屆試題下載器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -17,33 +17,47 @@
             <div class="logo-box">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
             </div>
-            <h1>學測歷屆試題下載器</h1>
-            <p>快速打包大考中心歷屆試題與解答為 ZIP 壓縮檔</p>
+            <h1>全方位歷屆試題下載器</h1>
+            <p>快速打包歷屆試題與解答為 ZIP 壓縮檔</p>
         </header>
 
         <main>
             <form id="downloadForm">
+                
+                <div class="toggle-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="schoolLevelToggle">
+                        <span class="slider"></span>
+                        <div class="toggle-labels">
+                            <span class="label-left">國中會考</span>
+                            <span class="label-right">高中大考</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="form-group" id="highSchoolExamTypeGroup" style="display: none;">
+                    <label for="highSchoolExamType">考試種類</label>
+                    <select id="highSchoolExamType" name="highSchoolExamType">
+                        <option value="學測" selected>學科能力測驗 (學測)</option>
+                        <option value="分科測驗">分科測驗 (含原指考)</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="subject">考試科目</label>
                     <select id="subject" name="subject" required>
-                        <option value="" disabled selected>請選擇科目</option>
-                        <option value="國文">國文 (含國綜、國寫)</option>
-                        <option value="英文">英文</option>
-                        <option value="數學A">數學 A</option>
-                        <option value="數學B">數學 B</option>
-                        <option value="社會">社會</option>
-                        <option value="自然">自然</option>
+                        <!-- 動態產生選項 -->
                     </select>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="start_year">起始年份</label>
-                        <input type="number" id="start_year" name="start_year" min="80" max="115" value="105" required>
+                        <input type="number" id="start_year" name="start_year" min="95" max="115" value="103" required>
                     </div>
                     <div class="form-group">
                         <label for="end_year">結束年份</label>
-                        <input type="number" id="end_year" name="end_year" min="80" max="115" value="115" required>
+                        <input type="number" id="end_year" name="end_year" min="95" max="115" value="115" required>
                     </div>
                 </div>
 
@@ -67,7 +81,74 @@
     </div>
 
     <script>
-        const possibleTypes = ["試題", "答案", "選擇題答案", "答題卷", "非選擇題評分原則"];
+        const schoolLevelToggle = document.getElementById('schoolLevelToggle');
+        const highSchoolExamTypeGroup = document.getElementById('highSchoolExamTypeGroup');
+        const highSchoolExamType = document.getElementById('highSchoolExamType');
+        const subjectSelect = document.getElementById('subject');
+        const startYearInput = document.getElementById('start_year');
+        const endYearInput = document.getElementById('end_year');
+
+        const subjectsData = {
+            '會考': [
+                { value: '國文', label: '國文' },
+                { value: '英文', label: '英文 (含聽力)' },
+                { value: '數學', label: '數學' },
+                { value: '社會', label: '社會' },
+                { value: '自然', label: '自然' },
+                { value: '寫作測驗', label: '寫作測驗' }
+            ],
+            '學測': [
+                { value: '國文', label: '國文 (含國綜、國寫)' },
+                { value: '英文', label: '英文' },
+                { value: '數學A', label: '數學 A' },
+                { value: '數學B', label: '數學 B' },
+                { value: '社會', label: '社會' },
+                { value: '自然', label: '自然' }
+            ],
+            '分科測驗': [
+                { value: '國文', label: '國文' },
+                { value: '英文', label: '英文' },
+                { value: '數學甲', label: '數學甲' },
+                { value: '數學乙', label: '數學乙' },
+                { value: '歷史', label: '歷史' },
+                { value: '地理', label: '地理' },
+                { value: '公民與社會', label: '公民與社會' },
+                { value: '物理', label: '物理' },
+                { value: '化學', label: '化學' },
+                { value: '生物', label: '生物' }
+            ]
+        };
+
+        function updateUI() {
+            let currentType = '';
+            if (!schoolLevelToggle.checked) {
+                // 國中
+                currentType = '會考';
+                highSchoolExamTypeGroup.style.display = 'none';
+                startYearInput.min = 103;
+                startYearInput.value = Math.max(103, startYearInput.value);
+            } else {
+                // 高中
+                currentType = highSchoolExamType.value;
+                highSchoolExamTypeGroup.style.display = 'block';
+                startYearInput.min = 95;
+            }
+
+            // 更新科目選項
+            const options = subjectsData[currentType];
+            subjectSelect.innerHTML = '';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.value;
+                el.textContent = opt.label;
+                subjectSelect.appendChild(el);
+            });
+        }
+
+        schoolLevelToggle.addEventListener('change', updateUI);
+        highSchoolExamType.addEventListener('change', updateUI);
+        // 初始化 UI
+        updateUI();
 
         document.getElementById('downloadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -80,6 +161,9 @@
                 showError("起始年份不可大於結束年份！");
                 return;
             }
+
+            const isHighSchool = schoolLevelToggle.checked;
+            const examCategory = isHighSchool ? highSchoolExamType.value : '會考';
 
             // UI State change
             const btn = document.getElementById('submitBtn');
@@ -98,17 +182,31 @@
                 const zip = new JSZip();
                 let foundAny = false;
 
+                let possibleTypes = [];
+                if (examCategory === '會考') {
+                    possibleTypes = ["試卷", "答案", "聽力試卷", "聽力音檔"];
+                } else {
+                    possibleTypes = ["試題", "答案", "選擇題答案", "答題卷", "非選擇題評分原則"];
+                }
+
                 for (let year = startYear; year <= endYear; year++) {
                     for (let type of possibleTypes) {
                         let targetSubject = subject;
-                        // 處理舊制數學 (111年以前沒有分AB)
-                        if ((subject === "數學A" || subject === "數學B") && year < 111) {
+                        let filename;
+                        
+                        // 處理舊制數學 (111年以前學測沒有分AB)
+                        if (examCategory === '學測' && (subject === "數學A" || subject === "數學B") && year < 111) {
                             targetSubject = "數學";
                         }
-                        // 處理國文 (前端選項為國文，抓取的就是國文)
                         
-                        const filename = `${year}-學測${targetSubject}-${type}.pdf`;
-                        // 嘗試 Fetch 檔案
+                        // 會考的答案只有一份「全部-答案.pdf」
+                        if (examCategory === '會考' && type === '答案') {
+                            filename = `${year}-${examCategory}全部-${type}.pdf`;
+                        } else {
+                            const extension = (type === '聽力音檔') ? '.url' : '.pdf';
+                            filename = `${year}-${examCategory}${targetSubject}-${type}${extension}`;
+                        }
+                        
                         const url = `pdfs/${filename}`;
                         
                         try {
@@ -125,7 +223,7 @@
                 }
 
                 if (!foundAny) {
-                    throw new Error('在這個年份區間找不到該科目的任何試題檔案。');
+                    throw new Error(`在這個年份區間找不到 ${examCategory} [${subject}] 的任何試題檔案。`);
                 }
 
                 // 產生 ZIP 檔
@@ -134,7 +232,7 @@
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = downloadUrl;
-                a.download = `GSAT_${subject}_${startYear}-${endYear}.zip`;
+                a.download = `${examCategory}_${subject}_${startYear}-${endYear}.zip`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(downloadUrl);
