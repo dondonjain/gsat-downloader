@@ -395,7 +395,7 @@
 
             let promptText = "";
             if (type === 'web') {
-                promptText = `我需要你幫我尋找台灣歷屆大考（學測、分科、會考）的試題。\n請「不要」使用上網搜尋功能。請直接依照以下固定格式，組合出下載連結清單給我：\nhttps://dondonjain.github.io/gsat-downloader/pdfs/[年份]-[考試類別][科目]-[文件類型].pdf\n\n例如：113-學測國文-試卷.pdf 或 112-會考全部-答案.pdf\n現在請幫我列出【${yearStr}】的【${examCategory}】包含【${subjectText}】的所有試卷與解答連結。`;
+                promptText = `我需要你幫我尋找台灣歷屆大考（學測、分科、會考）的試題。\n請「不要」使用上網搜尋功能。請直接依照以下固定格式，組合出下載連結清單給我：\nhttps://github.com/dondonjain/gsat-downloader/blob/main/pdfs/[年份]-[考試類別][科目]-[文件類型].pdf\n\n例如：113-學測國文-試卷.pdf 或 112-會考全部-答案.pdf\n現在請幫我列出【${yearStr}】的【${examCategory}】包含【${subjectText}】的所有試卷與解答連結。`;
             } else if (type === 'agent') {
                 promptText = `這是一個台灣歷屆大考題庫的靜態 API。\n請使用你的讀取網頁工具 (curl, read_url 等)，讀取以下兩個端點來獲取資料結構與清單：\n1. OpenAPI 規格：https://dondonjain.github.io/gsat-downloader/openapi.yaml\n2. 檔案清單：https://dondonjain.github.io/gsat-downloader/api/files.json\n\n請閱讀上述資源後，直接從中幫我篩選出【${yearStr}】的【${examCategory}】包含【${subjectText}】的資料，並直接幫我下載或提供連結。`;
             }

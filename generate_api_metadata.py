@@ -9,7 +9,7 @@ def generate_metadata():
     if not os.path.exists(api_dir):
         os.makedirs(api_dir)
 
-    base_url = "https://dondonjain.github.io/gsat-downloader/pdfs/"
+    base_url = "https://github.com/dondonjain/gsat-downloader/blob/main/pdfs/"
     files_metadata = []
 
     for filename in os.listdir(pdfs_dir):
